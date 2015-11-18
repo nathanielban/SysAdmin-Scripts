@@ -1,7 +1,9 @@
 # Age the file must be to be deleted minimum of 1 day
 $age = 1
+
 # Path to print que folder
 $path = "C:\Windows\System32\spool\PRINTERS"
+
 # Function to get date of file
 $limit = (Get-Date).AddDays(-$age)
 
