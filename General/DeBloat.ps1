@@ -23,3 +23,6 @@ foreach ($P2TBN in $P2TBN) {
 ## Search through the list of programs in "toolbars_BHOs_to_target_by_GUID.bat" file and uninstall them one-by-one
 Invoke-WebRequest $DL_toolbars_BHOs_to_target_by -OutFile toolbars_BHOs_to_target_by_GUID.bat
 cmd /k ./toolbars_BHOs_to_target_by_GUID.bat >> "%LOGPATH%\%LOGFILE%" 2>&1
+
+## test below
+##(iwr https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_GUID.bat).ToString().Split([Environment]::Newline) | ? {$_ -match "^start"} | % { sps $_.split()[2..($_.Split().Length)] }
