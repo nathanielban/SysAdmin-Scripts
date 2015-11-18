@@ -1,22 +1,24 @@
 ## By DEFAULT, LOGPATH is the parent directory for all of Tron's output (logs, backups, etc). Tweak the paths below to your liking if you want to change it
-$TSTAMP=Get-Date -format "dd-MMM-yyyy_HH-mm-ss"
-$LOGPATH=%SystemDrive%\Logs\tron\
-$LOGFILE=tron_debloat_%TSTAMP%.log
-$DL_programs_to_target_by_GUID=https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_GUID.bat
-$DL_programs_to_target_by_name=https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_name.txt
-$DL_toolbars_BHOs_to_target_by=https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/toolbars_BHOs_to_target_by_GUID.bat
+$TSTAMP = Get-Date -format "dd-MMM-yyyy_HH-mm-ss"
+$LOGPATH = "C:\tron\logs\Logs\tron\"
+$LOGFILE = "tron_debloat_%TSTAMP%.log"
+$DL_programs_to_target_by_GUID = "https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_GUID.bat"
+$DL_programs_to_target_by_name = "https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_name.txt"
+$DL_toolbars_BHOs_to_target_by = "https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/toolbars_BHOs_to_target_by_GUID.bat"
 
 ## JOB: Remove crapware programs, phase 1: by specific GUID
 ## Search through the list of programs in "programs_to_target_by_GUID.bat" file and uninstall them one-by-one
 Invoke-WebRequest $DL_programs_to_target_by_GUID -OutFile programs_to_target_by_GUID.bat
-programs_to_target_by_GUID.bat >> "%LOGPATH%\%LOGFILE%" 2>&1
+start ./programs_to_target_by_GUID.bat
+##>> "%LOGPATH%\%LOGFILE%" 2>&1
 
 ## JOB: Remove crapware programs, phase 2: wildcard by name
 ## Search through the list of programs in "programs_to_target_name.txt" file and uninstall them one-by-one
-Invoke-WebRequest $DL_programs_to_target_by_name -OutFile programs_to_target_by_name.txt
-FOR /F "tokens=*" %%i in (programs_to_target_by_name.txt) DO echo   %%i && echo   %%i...>> "%LOGPATH%\%LOGFILE%" && %WMIC% product where "name like '%%i'" uninstall /nointeractive>> "%LOGPATH%\%LOGFILE%"
+ Invoke-WebRequest $DL_programs_to_target_by_name -OutFile programs_to_target_by_name.txt
+ FOR /F "tokens=*" %%i in (programs_to_target_by_name.txt) DO echo   %%i && echo   %%i...>> "%LOGPATH%\%LOGFILE%" && %WMIC% product where "name like '%%i'" uninstall /nointeractive>> "%LOGPATH%\%LOGFILE%"
 
 ## JOB: Remove crapware programs, phase 3: unwanted toolbars and BHOs by GUID
 ## Search through the list of programs in "toolbars_BHOs_to_target_by_GUID.bat" file and uninstall them one-by-one
 Invoke-WebRequest $DL_toolbars_BHOs_to_target_by -OutFile toolbars_BHOs_to_target_by_GUID.bat
-call toolbars_BHOs_to_target_by_GUID.bat >> "%LOGPATH%\%LOGFILE%" 2>&1
+start ./toolbars_BHOs_to_target_by_GUID.bat
+##>> "%LOGPATH%\%LOGFILE%" 2>&1
