@@ -7,7 +7,7 @@ $path = "C:\Windows\System32\spool\PRINTERS"
 # Function to get date of file
 $limit = (Get-Date).AddDays(-$age)
 
-# Stop the Printer Service
+# Stop the Printer Service to release file locks
 Stop-Service spooler
 
 # Delete files older than the $limit.
@@ -16,5 +16,5 @@ Get-ChildItem -Path $path -Recurse -Force | Where-Object { !$_.PSIsContainer -an
 # Delete any empty directories left behind after deleting the old files.
 Get-ChildItem -Path $path -Recurse -Force | Where-Object { $_.PSIsContainer -and (Get-ChildItem -Path $_.FullName -Recurse -Force | Where-Object { !$_.PSIsContainer }) -eq $null } | Remove-Item -Force -Recurse
 
-# Start the Printer Service
+# Start the Printer Service so you can print again
 Start-Service spooler
