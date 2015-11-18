@@ -14,11 +14,13 @@ start ./programs_to_target_by_GUID.bat
 
 ## JOB: Remove crapware programs, phase 2: wildcard by name
 ## Search through the list of programs in "programs_to_target_name.txt" file and uninstall them one-by-one
- Invoke-WebRequest $DL_programs_to_target_by_name -OutFile programs_to_target_by_name.txt
- FOR /F "tokens=*" %%i in (programs_to_target_by_name.txt) DO echo   %%i && echo   %%i...>> "%LOGPATH%\%LOGFILE%" && %WMIC% product where "name like '%%i'" uninstall /nointeractive>> "%LOGPATH%\%LOGFILE%"
+Invoke-WebRequest $DL_programs_to_target_by_name -OutFile programs_to_target_by_name.txt
+$P2TBN = Get-Content programs_to_target_by_name.txt
+foreach ($P2TBN in $P2TBN) {
+    WMIC product where "name like '$P2TBN'" uninstall /nointeractive 
+}
 
 ## JOB: Remove crapware programs, phase 3: unwanted toolbars and BHOs by GUID
 ## Search through the list of programs in "toolbars_BHOs_to_target_by_GUID.bat" file and uninstall them one-by-one
 Invoke-WebRequest $DL_toolbars_BHOs_to_target_by -OutFile toolbars_BHOs_to_target_by_GUID.bat
 start ./toolbars_BHOs_to_target_by_GUID.bat
-##>> "%LOGPATH%\%LOGFILE%" 2>&1
