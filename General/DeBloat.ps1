@@ -9,18 +9,17 @@ $DL_toolbars_BHOs_to_target_by = "https://raw.githubusercontent.com/bmrf/tron/ma
 ## JOB: Remove crapware programs, phase 1: by specific GUID
 ## Search through the list of programs in "programs_to_target_by_GUID.bat" file and uninstall them one-by-one
 Invoke-WebRequest $DL_programs_to_target_by_GUID -OutFile programs_to_target_by_GUID.bat
-start ./programs_to_target_by_GUID.bat
-##>> "%LOGPATH%\%LOGFILE%" 2>&1
+cmd /k ./programs_to_target_by_GUID.bat >> "%LOGPATH%\%LOGFILE%" 2>&1
 
 ## JOB: Remove crapware programs, phase 2: wildcard by name
 ## Search through the list of programs in "programs_to_target_name.txt" file and uninstall them one-by-one
 Invoke-WebRequest $DL_programs_to_target_by_name -OutFile programs_to_target_by_name.txt
 $P2TBN = Get-Content programs_to_target_by_name.txt
 foreach ($P2TBN in $P2TBN) {
-    WMIC product where "name like '$P2TBN'" uninstall /nointeractive 
+    WMIC product where "name like '$P2TBN'" uninstall /nointeractive -outfile "$LOGPATH\$LOGFILE"
 }
 
 ## JOB: Remove crapware programs, phase 3: unwanted toolbars and BHOs by GUID
 ## Search through the list of programs in "toolbars_BHOs_to_target_by_GUID.bat" file and uninstall them one-by-one
 Invoke-WebRequest $DL_toolbars_BHOs_to_target_by -OutFile toolbars_BHOs_to_target_by_GUID.bat
-start ./toolbars_BHOs_to_target_by_GUID.bat
+cmd /k ./toolbars_BHOs_to_target_by_GUID.bat >> "%LOGPATH%\%LOGFILE%" 2>&1
