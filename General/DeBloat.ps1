@@ -8,21 +8,34 @@ $DL_toolbars_BHOs_to_target_by = "https://raw.githubusercontent.com/bmrf/tron/ma
 
 ## JOB: Remove crapware programs, phase 1: by specific GUID
 ## Search through the list of programs in "programs_to_target_by_GUID.bat" file and uninstall them one-by-one
-Invoke-WebRequest $DL_programs_to_target_by_GUID -OutFile programs_to_target_by_GUID.bat
-cmd /k ./programs_to_target_by_GUID.bat >> "%LOGPATH%\%LOGFILE%" 2>&1
+$webrequest = iwr $DL_programs_to_target_by_GUID
+$file = $webrequest.ToString()
+$lines = $file.Split([Environment]::Newline)
+foreach ($line in $lines) {
+   if ($line -match "^start") {
+    Start-Process "msiexec.exe" -argumentlist $line.split()[4..($line.Split().Length)] -wait
+  }
+}
 
+##
 ## JOB: Remove crapware programs, phase 2: wildcard by name
 ## Search through the list of programs in "programs_to_target_name.txt" file and uninstall them one-by-one
-Invoke-WebRequest $DL_programs_to_target_by_name -OutFile programs_to_target_by_name.txt
-$P2TBN = Get-Content programs_to_target_by_name.txt
-foreach ($P2TBN in $P2TBN) {
-    WMIC product where "name like '$P2TBN'" uninstall /nointeractive -outfile "$LOGPATH\$LOGFILE"
+$list2 = (iwr $DL_programs_to_target_by_name).tostring().split([Environment]::Newline)
+Foreach ($item in $list2) { 
+    Get-CimInstance -ClassName win32_product -Filter ("name like '" + $item + "'") | Invoke-CIMMethod -MethodName uninstall -whatif
 }
 
 ## JOB: Remove crapware programs, phase 3: unwanted toolbars and BHOs by GUID
 ## Search through the list of programs in "toolbars_BHOs_to_target_by_GUID.bat" file and uninstall them one-by-one
-Invoke-WebRequest $DL_toolbars_BHOs_to_target_by -OutFile toolbars_BHOs_to_target_by_GUID.bat
-cmd /k ./toolbars_BHOs_to_target_by_GUID.bat >> "%LOGPATH%\%LOGFILE%" 2>&1
+$webrequest = iwr $DL_toolbars_BHOs_to_target_by
+$file = $webrequest.ToString()
+$lines = $file.Split([Environment]::Newline)
+foreach ($line in $lines) {
+   if ($line -match "^start") {
+    Start-Process "msiexec.exe" -argumentlist $line.split()[4..($line.Split().Length)] -wait
+  }
+}
 
-## test below
-##(iwr https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_GUID.bat).ToString().Split([Environment]::Newline) | ? {$_ -match "^start"} | % { sps $_.split()[2..($_.Split().Length)] }
+###############################PSUDO CODE BELOW########################################
+# $InstalledSoftware = Get-Wmiobject -Class win32_product | Select-String "IdentifyingNumber"
+# compare vs list provided by vocatus
