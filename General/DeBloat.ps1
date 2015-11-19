@@ -11,31 +11,30 @@ $DL_toolbars_BHOs_to_target_by = "https://raw.githubusercontent.com/bmrf/tron/ma
 $webrequest = iwr $DL_programs_to_target_by_GUID
 $file = $webrequest.ToString()
 $lines = $file.Split([Environment]::Newline)
-foreach ($line in $lines) {
-   if ($line -match "^start") {
-    Start-Process "msiexec.exe" -argumentlist $line.split()[4..($line.Split().Length)] -wait
-  }
-}
-
+$GUIDVOCPROGS = $lines -replace ".*?({[0-9a-zA-Z\-]+}).*",'$1' -replace "^[^{].*" | ? {$_}
+##foreach ($line in $lines) {
+##   if ($line -match "^start") {
+##    Start-Process "msiexec.exe" -argumentlist $line.split()[4..($line.Split().Length)] -wait
+##  }
+##}
+echo $GUIDVOCPROGS
 ##
 ## JOB: Remove crapware programs, phase 2: wildcard by name
 ## Search through the list of programs in "programs_to_target_name.txt" file and uninstall them one-by-one
-$list2 = (iwr $DL_programs_to_target_by_name).tostring().split([Environment]::Newline)
-Foreach ($item in $list2) { 
-    Get-CimInstance -ClassName win32_product -Filter ("name like '" + $item + "'") | Invoke-CIMMethod -MethodName uninstall -whatif
-}
+## $list2 = (iwr $DL_programs_to_target_by_name).tostring().split([Environment]::Newline)
+## Foreach ($item in $list2) { 
+##    Get-CimInstance -ClassName win32_product -Filter ("name like '" + $item + "'") | Invoke-CIMMethod -MethodName uninstall -whatif
+## }
 
 ## JOB: Remove crapware programs, phase 3: unwanted toolbars and BHOs by GUID
 ## Search through the list of programs in "toolbars_BHOs_to_target_by_GUID.bat" file and uninstall them one-by-one
 $webrequest = iwr $DL_toolbars_BHOs_to_target_by
 $file = $webrequest.ToString()
 $lines = $file.Split([Environment]::Newline)
-foreach ($line in $lines) {
-   if ($line -match "^start") {
-    Start-Process "msiexec.exe" -argumentlist $line.split()[4..($line.Split().Length)] -wait
-  }
-}
-
-###############################PSUDO CODE BELOW########################################
-# $InstalledSoftware = Get-Wmiobject -Class win32_product | Select-String "IdentifyingNumber"
-# compare vs list provided by vocatus
+$GUIDVOCTOOLBARS = $lines -replace ".*?({[0-9a-zA-Z\-]+}).*",'$1' -replace "^[^{].*" | ? {$_}
+## foreach ($line in $lines) {
+##   if ($line -match "^start") {
+##    Start-Process "msiexec.exe" -argumentlist $line.split()[4..($line.Split().Length)] -wait
+##  }
+## }
+echo $GUIDVOCTOOLBARS
