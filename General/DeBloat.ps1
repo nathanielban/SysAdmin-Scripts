@@ -1,40 +1,56 @@
-## By DEFAULT, LOGPATH is the parent directory for all of Tron's output (logs, backups, etc). Tweak the paths below to your liking if you want to change it
+#############Variables#####################
+
 $TSTAMP = Get-Date -format "dd-MMM-yyyy_HH-mm-ss"
-$LOGPATH = "C:\tron\logs\Logs\tron\"
-$LOGFILE = "tron_debloat_%TSTAMP%.log"
-$DL_programs_to_target_by_GUID = "https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_GUID.bat"
-$DL_programs_to_target_by_name = "https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_name.txt"
-$DL_toolbars_BHOs_to_target_by = "https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/toolbars_BHOs_to_target_by_GUID.bat"
-$InstalledSoftware = Get-Wmiobject -Class win32_product | Select -ExpandProperty "IdentifyingNumber"
+$LOGPATH = "C:\logs\debloat"
+$LOGFILE = "debloat_%TSTAMP%.log"
+$ProgramsRemoved = @()
+$Dl_Programs_By_GUID = "https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_GUID.bat"
+$Dl_Programs_By_NAME = "https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_name.txt"
+$Dl_Toolbars_By_GUID = "https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/toolbars_BHOs_to_target_by_GUID.bat"
+$Programs = Get-CIMInstance -Classname Win32_Product
+$InstalledSoftware = $Programs | Select -Expandproperty "Identifyingnumber"
 
-## JOB: Remove crapware programs, phase 1: by specific GUID
-## Search through the list of programs in "programs_to_target_by_GUID.bat" file and uninstall them one-by-one
-$webrequest = iwr $DL_programs_to_target_by_GUID
-$file = $webrequest.ToString()
-$lines = $file.Split([Environment]::Newline)
-$GUIDVOCPROGS = $lines -replace ".*?({[0-9a-zA-Z\-]+}).*",'$1' -replace "^[^{].*" | ? {$_}
-##foreach ($line in $lines) {
-##   if ($line -match "^start") {
-##    Start-Process "msiexec.exe" -argumentlist $line.split()[4..($line.Split().Length)] -wait
-##  }
-##}
-echo $GUIDVOCPROGS
-##
-## JOB: Remove crapware programs, phase 2: wildcard by name
-## Search through the list of programs in "programs_to_target_name.txt" file and uninstall them one-by-one
-## $list2 = (iwr $DL_programs_to_target_by_name).tostring().split([Environment]::Newline)
-## Foreach ($item in $list2) { 
-##    Get-CimInstance -ClassName win32_product -Filter ("name like '" + $item + "'") | Invoke-CIMMethod -MethodName uninstall -whatif
-## }
 
-## JOB: Remove crapware programs, phase 3: unwanted toolbars and BHOs by GUID
-## Search through the list of programs in "toolbars_BHOs_to_target_by_GUID.bat" file and uninstall them one-by-one
-$webrequest = iwr $DL_toolbars_BHOs_to_target_by
-$file = $webrequest.ToString()
-$lines = $file.Split([Environment]::Newline)
-$GUIDVOCTOOLBARS = $lines -replace ".*?({[0-9a-zA-Z\-]+}).*",'$1' -replace "^[^{].*" | ? {$_}
-## foreach ($line in $lines) {
-##   if ($line -match "^start") {
-##    Start-Process "msiexec.exe" -argumentlist $line.split()[4..($line.Split().Length)] -wait
-##  }
-## }
+
+############Phase1 Removal By GUID#######################
+
+## Get List Of Programs GUIDs From Tron 
+$Webrequest = IWR "$Dl_Programs_By_GUID"
+$File = $Webrequest.Tostring()
+$Lines = $File.Split([Environment]::Newline)
+$GUIDVOCprogs = $Lines -Replace ".*?({[0-9a-zA-Z\-]+}).*",'$1' -Replace "^[^{].*" | ? {$_}
+
+## Get List Of Toolbars GUIDs From Tron
+$Webrequest = IWR $Dl_Toolbars_By_GUID
+$File = $Webrequest.Tostring()
+$Lines = $File.Split([Environment]::Newline)
+$GUIDVOCToolbars = $Lines -Replace ".*?({[0-9a-zA-Z\-]+}).*",'$1' -Replace "^[^{].*" | ? {$_} #Forgot the where (? is synomomous with where and where-object)
+
+## Make A Bad GUID Concated Variable.
+$BadGUIDs = $GUIDVOCprogs + $GUIDVOCToolbars | Select -Unique
+
+
+## Compare List Of Bad GUID Against Whats Installed
+$InstalledBadGUIDs = $InstalledSoftware | Compare $BadGUIDs -Excludedifferent -Includeequal| Select -Expandproperty Inputobject
+$InstalledBadGUIDs | Foreach {
+Start-Process "Msiexec.Exe" -Argumentlist "/Qn","/Norestart","/X","$_" -Wait
+$ProgramsRemoved += $Programs -match $_ | Select -ExpandProperty Name
+}
+
+
+###########Phase2 Removal Using WildCard Names#########################
+
+## Job: Remove Crapware Programs, Phase 2: Wildcard By Name
+## Search Through The List Of Programs In "Programs_To_Target_Name.Txt" File And Uninstall Them One-By-One
+$Webrequest = ((Iwr $Dl_Programs_By_NAME).Tostring() -Replace "%%","*").Split([Environment]::Newline) | where {$_} #Like Above, This Clears Out Empty Lines. Like At The End Of A File :)
+Foreach ($Item In $Webrequest) { 
+  If ($Uninstalling = $Programs | Where {$_.Name -Like $Item})
+  {
+    $Uninstalling | Invoke-Cimmethod -Methodname Uninstall -Whatif  #Send All Programs Through Pipe. Find All Objects That Have A Name Property That Matches One Of The $Item In $Webrequest And Uninstall It
+    $ProgramsRemoved += $Programs -match $uninstalling.IdentifyingNumber | Select -ExpandProperty Name #Hmmm, can I match on this object? Might be able to!
+  }
+}
+
+
+###########Phase3 Logging the removed programs#########################
+$ProgramsRemoved | Out-File $LogPath\$LogFile
