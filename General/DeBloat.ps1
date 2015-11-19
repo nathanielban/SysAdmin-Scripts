@@ -26,3 +26,11 @@ cmd /k ./toolbars_BHOs_to_target_by_GUID.bat >> "%LOGPATH%\%LOGFILE%" 2>&1
 
 ## test below
 ##(iwr https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_GUID.bat).ToString().Split([Environment]::Newline) | ? {$_ -match "^start"} | % { sps $_.split()[2..($_.Split().Length)] }
+#$webrequest = iwr https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_GUID.bat
+#$file = $webrequest.ToString()
+#$lines = $file.Split([Environment]::Newline)
+#foreach ($line in $lines) {
+#   if ($line -match "^start") {
+#    Start-Process $line.split()[2..($line.Split().Length)]
+#  }
+#}
