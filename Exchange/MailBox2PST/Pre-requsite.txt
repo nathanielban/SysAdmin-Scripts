@@ -1,0 +1,12 @@
+# 32-bit OS
+# Powershell
+# Outlook 2007
+# 32-bit Exchange 2007 Management Tools
+
+# Setup user permissions (Below powershell commands use "PMPLIMITED\PMP Group IS Client Systems SG" as an example):
+
+add-ExchangeAdministrator -Identity "PMPLIMITED\PMP Group IS Client Systems SG" -Role ViewOnlyAdmin -confirm:$false
+
+$mailDBs = Get-MailboxDatabase | where {$_.StorageGroup -match "Storage Group"}
+
+$mailDBs | add-adpermission -User "PMPLIMITED\PMP Group IS Client Systems SG" -AccessRights WriteOwner,WriteDacl -extendedrights ms-Exch-Store-Admin
