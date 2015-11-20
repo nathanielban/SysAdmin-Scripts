@@ -1,9 +1,7 @@
 #############Editable Variables#####################
 
 $TSTAMP = Get-Date -format "dd-MMM-yyyy_HH-mm-ss"
-$LOGPATH = "C:\logs\debloat"
 $LOGPATH = "\\server\share\debloat"
-$LOGFILE = "debloat.log"
 $LOGFILE = "debloat.log"
 $Dl_Programs_By_GUID = "https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_GUID.bat"
 $Dl_Programs_By_NAME = "https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_name.txt"
