@@ -1,8 +1,8 @@
 #############Editable Variables#####################
 
-$TSTAMP = Get-Date -format "dd-MMM-yyyy_HH-mm-ss"
-$LOGPATH = "\\server\share\debloat"
-$LOGFILE = "debloat.log"
+$Tstamp = Get-Date -format "dd-MMM-yyyy_HH-mm-ss"
+$LogPath = "\\server\share\debloat"
+$LogFile = "debloat.log"
 $Dl_Programs_By_GUID = "https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_GUID.bat"
 $Dl_Programs_By_NAME = "https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/programs_to_target_by_name.txt"
 $Dl_Toolbars_By_GUID = "https://raw.githubusercontent.com/bmrf/tron/master/resources/stage_2_de-bloat/toolbars_BHOs_to_target_by_GUID.bat"
@@ -56,5 +56,5 @@ Foreach ($String In $WebrequestStringArray) {
 
 ###########Phase3 Logging the removed programs#########################
 $ProgramsRemoved | Add-Member -MemberType NoteProperty -Name "Hostname" -Value $Env:COMPUTERNAME
-$ProgramsRemoved | Add-Member -MemberType NoteProperty -Name "TimeStamp" -Value $TSTAMP
+$ProgramsRemoved | Add-Member -MemberType NoteProperty -Name "TimeStamp" -Value $Tstamp
 $ProgramsRemoved | select Hostname, Timestamp, Name, IdentifyingNumber | Export-Csv -append $LogPath\$LogFile -NoTypeInformation
