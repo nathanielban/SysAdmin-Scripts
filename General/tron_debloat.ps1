@@ -1,7 +1,7 @@
 #############Editable Variables#####################
 
 $Tstamp = Get-Date -format "dd-MMM-yyyy_HH-mm-ss"
-$LogPath = "C:\downloads"
+$LogPath = "C:\tron"
 $LogFile = "debloat.log"
 $Dl_Programs_By_GUID = "programs_to_target_by_GUID.bat"
 $Dl_Programs_By_NAME = "programs_to_target_by_name.txt"
@@ -23,7 +23,7 @@ $GUIDVOCprogs = $Lines -Replace ".*?({[0-9a-zA-Z\-]+}).*",'$1' -Replace "^[^{].*
 
 ## Get List Of Toolbars GUIDs From Tron
 $Lines = Get-Content $Dl_Toolbars_By_GUID
-$GUIDVOCToolbars = $Lines -Replace ".*?({[0-9a-zA-Z\-]+}).*",'$1' -Replace "^[^{].*" | ? {$_}
+$GUIDVOCToolbars = $Lines -Replace ".*?({[0-9a-zA-Z\-]+}).*",'$1' -Replace "^[^{].*" | ? {$_} #Forgot the where (? is synomomous with where and where-object)
 
 ## Make A Bad GUID Concated Variable.
 $BadGUIDs = $GUIDVOCprogs + $GUIDVOCToolbars | Select -Unique
@@ -32,6 +32,7 @@ $BadGUIDs = $GUIDVOCprogs + $GUIDVOCToolbars | Select -Unique
 ## Compare List Of Bad GUID Against Whats Installed
 $InstalledBadGUIDs = $InstalledSoftware | Compare $BadGUIDs -Excludedifferent -Includeequal| Select -Expandproperty Inputobject
 $InstalledBadGUIDs | Foreach {
+Start-Process "Msiexec.Exe" -Argumentlist "/Qn","/Norestart","/X","$_" -Wait
 $ProgramsRemoved += $Programs -match $_ | Select Name,IdentifyingNumber
 }
 
@@ -43,6 +44,7 @@ $ProgramsByName = (Get-Content $Dl_Programs_By_NAME) -Replace "%%","*"
 Foreach ($ProgramName In $ProgramsByName) { 
   If ($Uninstalling = $Programs | Where {$_.Name -Like $ProgramName})
   {
+    $Uninstalling | Invoke-Cimmethod -Methodname Uninstall -Whatif  
     $ProgramsRemoved += $Programs -match $uninstalling.IdentifyingNumber | Select Name,IdentifyingNumber
   }
 }
