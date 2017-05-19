@@ -3,9 +3,9 @@
 $Tstamp = Get-Date -format "dd-MMM-yyyy_HH-mm-ss"
 $LogPath = "C:\tron"
 $LogFile = "debloat.log"
-$Dl_Programs_By_GUID = "programs_to_target_by_GUID.bat"
+$Dl_Programs_By_GUID = "programs_to_target_by_GUID.txt"
 $Dl_Programs_By_NAME = "programs_to_target_by_name.txt"
-$Dl_Toolbars_By_GUID = "toolbars_BHOs_to_target_by_GUID.bat"
+$Dl_Toolbars_By_GUID = "toolbars_BHOs_to_target_by_GUID.txt"
 
 
 ############Phase0 Initialization Do Not Edit Below#######################
