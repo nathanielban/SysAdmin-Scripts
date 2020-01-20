@@ -83,7 +83,7 @@ if (Test-Path ($UpdateExePath)){
     $isohash = $(CertUtil -hashfile $localISOPath SHA1)[1] -replace " ",""
     Write-Host "SHA1 Hash for Downloaded file:" $isohash.Hash
     #If ISO is intact, extract to working directory using 7Z
-    if ($isohash.Hash -eq $referenceISOHash){
+    if ($isohash -eq $referenceISOHash){
         Write-Host "ISO Matches - Proceeding"
         Write-Host "Extracting ISO..."
         Start-Process -FilePath $7zippath -ArgumentList " x -y -o$localPath $localISOPath" -Wait
@@ -93,7 +93,7 @@ if (Test-Path ($UpdateExePath)){
         Start-Process -FilePath $UpdateExePath -ArgumentList $UpdateArguments -Wait
     } else {
         Write-Host "ISO Mismatch, Aborting"
-        Write-Host $isohash.Hash "doesn't match" $referenceISOHash
+        Write-Host $isohash "doesn't match" $referenceISOHash
         exit
     }
 }
